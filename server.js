@@ -20,6 +20,8 @@ mongoose.Promise = Promise;
 
 // Initialize Express
 var app = express();
+var port = process.env.PORT || 3000;
+
 
 // Use body parser with our app
 app.use(bodyParser.urlencoded({
@@ -216,6 +218,6 @@ app.delete("/notes/:comment",function(req,res){
 });
 
 // Listen on port 3000
-app.listen(3000, function() {
-  console.log("App running on port 3000!");
+app.listen(port, function() {
+  console.log("Listening on port "+port);
 });
