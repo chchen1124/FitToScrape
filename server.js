@@ -29,19 +29,29 @@ app.use(bodyParser.urlencoded({
 // Make public a static dir
 app.use(express.static("public"));
 
-// Database configuration with mongoose
-mongoose.connect("mongodb://localhost/MyArticlesDB");
-var db = mongoose.connection;
+//Database config with Mongoose
+var databaseUrl='mongodb://localhost/MyArticlesDB';
 
-// Show any mongoose errors
-db.on("error", function(error) {
-  console.log("Mongoose Error: ", error);
-});
+if(process.env.MONGODB_URI)
+{
+  mongoose.connect(process.env.MONGODB_URI);
+}
+else
+{
+  mongoose.connect(databaseUrl);
+  var db = mongoose.connection;
 
-// Once logged in to the db through mongoose, log a success message
-db.once("open", function() {
-  console.log("Mongoose connection successful.");
-});
+  // Show any mongoose errors
+  db.on("error", function(error) {
+    console.log("Mongoose Error: ", error);
+  });
+
+  // Once logged in to the db through mongoose, log a success message
+  db.once("open", function() {
+    console.log("Mongoose connection successful.");
+  });  
+}
+// End of database configuration
 
 // Routes
 // ======
