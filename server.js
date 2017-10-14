@@ -9,6 +9,7 @@ var mongoose = require("mongoose");
 // Requiring our User and Article models
 var Article = require("./models/Article.js");
 var User=require("./models/User.js");
+var Note=require("./models/Note.js");
 // Our scraping tools
 var request = require("request");
 var cheerio = require("cheerio");
@@ -85,7 +86,7 @@ app.get("/scrape", function(req, res) {
 });
 
 // This will get the articles we scraped from the mongoDB
-app.get("/Articles", function(req, res) {
+app.get("/articles", function(req, res) {
   // Grab every doc in the Articles array
   Article.find({}, function(error, doc) {
     // Log any errors
@@ -99,8 +100,27 @@ app.get("/Articles", function(req, res) {
   });
 });
 
+// Grab an article by it's ObjectId
+app.get("/articles/:id", function(req, res) {
+  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+  Article.findOne({ "_id": req.params.id })
+  // ..and populate all of the notes associated with it
+  .populate("note")
+  // now, execute our query
+  .exec(function(error, doc) {
+    // Log any errors
+    if (error) {
+      console.log(error);
+    }
+    // Otherwise, send the doc to the browser as a json object
+    else {
+      res.json(doc);
+    }
+  });
+});
+
 // Create a new article
-app.post("/Articles/", function(req, res) {
+app.post("/articles", function(req, res) {
   // Create a new article and pass the req.body to the entry
   var newArticle = new Article(req.body);
 
@@ -113,7 +133,7 @@ app.post("/Articles/", function(req, res) {
     else
     {
       // Find our user and push the new note id into the User's notes array
-      User.findOneAndUpdate({}, { $push: { "articles": doc._id } }, { new: true }, function(err, newarticle) {
+      Article.findOneAndUpdate({_id:doc._id }, { $push: { "articles": doc._id } }, { new: true }, function(err, newarticle) {
         // Send any errors to the browser
         if (err) {
           res.send(err);
@@ -123,6 +143,64 @@ app.post("/Articles/", function(req, res) {
           res.send(newarticle);
         }
       });    	
+    }
+  });
+});
+
+// This will get the notes we scraped from the mongoDB
+app.get("/notes", function(req, res) {
+  // Grab every doc in the Notes array
+  Note.find({}, function(error, doc) {
+    // Log any errors
+    if (error) {
+      console.log(error);
+    }
+    // Or send the doc to the browser as a json object
+    else {
+      res.json(doc);
+    }
+  });
+});
+
+// Create a new Note
+app.post("/notes/", function(req, res) {
+  // Create a new note and pass the req.body to the entry
+  var newNote = new Note(req.body);
+
+  // And save the new note the db
+  newNote.save(function(error, doc) {
+    // Log any errors
+    if (error) {
+      res.send(error);
+    }
+    else
+    {
+      // Find our user and push the new note id into the User's notes array
+      Note.findOneAndUpdate({_id: doc._id}, { "notes": doc._id }, { new: true }, function(err, newnote) {
+        // Send any errors to the browser
+        if (err) {
+          res.send(err);
+        }
+        // Or send the newnote to the browser
+        else {
+          res.send(newnote);
+        }
+      });     
+    }
+  });
+});
+
+// Delete a note based on the comment
+app.delete("/notes/:comment",function(req,res){
+  var newNote=new Note(req.body);
+  newNote.save(function(error,doc){
+    if(error)
+    {
+      res.send(error);
+    }
+    else
+    {
+      Note.deleteOne({"comment": doc.comment});
     }
   });
 });
