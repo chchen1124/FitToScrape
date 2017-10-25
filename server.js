@@ -41,18 +41,19 @@ if(process.env.MONGODB_URI)
 else
 {
   mongoose.connect(databaseUrl);
-  var db = mongoose.connection;
-
-  // Show any mongoose errors
-  db.on("error", function(error) {
-    console.log("Mongoose Error: ", error);
-  });
-
-  // Once logged in to the db through mongoose, log a success message
-  db.once("open", function() {
-    console.log("Mongoose connection successful.");
-  });  
 }
+
+var db = mongoose.connection;
+
+// Show any mongoose errors
+db.on("error", function(error) {
+  console.log("Mongoose Error: ", error);
+});
+
+// Once logged in to the db through mongoose, log a success message
+db.once("open", function() {
+  console.log("Mongoose connection successful.");
+});  
 // End of database configuration
 
 // Routes
@@ -94,7 +95,7 @@ app.get("/scrape", function(req, res) {
     });
   });
   // Tell the browser that we finished scraping the text
-  res.send("Scrape Complete");
+  res.json("Scrape Complete");
 });
 
 // This will get the articles we scraped from the mongoDB

@@ -1,12 +1,25 @@
 // Grab the articles as a json
-$.getJSON("/articles", function(data) {
+/*$.getJSON("/articles", function(data) {
   // For each one
   for (var i = 0; i < data.length; i++) {
     // Display the article information on the page
     $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].headline + "<br />" + data[i].summary + "<br />" + data[i].url + "</p>");  
   }
-});
+});*/
 
+$("#scraper").on("click", function() {
+  // Grab the articles as a json
+  $.getJSON("/scrape", function(data) {
+    console.log(data);
+    $.getJSON("/articles", function(data) {
+    // For each one
+      for (var i = 0; i < data.length; i++) {
+        // Display the article information on the page
+        $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].headline + "<br />" + data[i].summary + "<br />" + data[i].url + "</p>");  
+      }
+    });
+  });  
+});
 
 // Whenever someone clicks a p tag
 $(document).on("click", "p", function() {
